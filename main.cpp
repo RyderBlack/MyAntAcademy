@@ -1,6 +1,86 @@
 #include "ants.h"
+#include "AntGraph.h"
+#include "anthill_data.h"
+#include <iostream>
+#include <vector>
+#include <string>
+
+// Function to process a single anthill
+void processAnthill(const AnthillData& anthill) {
+    try {
+        std::cout << "\n=== Processing Anthill ===\n";
+        
+        // Create graph from embedded data
+        AntGraph graph(anthill.numAnts, anthill.states, anthill.edges);
+        
+        // Print the graph information
+        graph.print();
+        
+        // Get start and goal nodes
+        std::string start = graph.getStartNode();
+        std::string goal = graph.getDestinationNode();
+        
+        if (start.empty() || goal.empty()) {
+            std::cerr << "Error: Missing start (Sv) or goal (Sd) node in the graph.\n";
+            return;
+        }
+        
+        std::cout << "Start node: " << start << std::endl;
+        std::cout << "Goal node: " << goal << std::endl;
+        
+        // Find the shortest path using A*
+        std::cout << "Finding shortest path..." << std::endl;
+        std::vector<std::string> path = graph.findShortestPath(start, goal);
+        
+        if (!path.empty()) {
+            // Print the path
+            std::cout << "\n=== Shortest Path ===\n";
+            std::cout << "Number of ants: " << graph.getNumberOfAnts() << "\n";
+            std::cout << "Path: ";
+            for (size_t i = 0; i < path.size(); ++i) {
+                if (i > 0) std::cout << " -> ";
+                std::cout << path[i];
+            }
+            std::cout << "\n";
+            
+            // Calculate the number of steps (excluding the start node)
+            int steps = path.size() - 1;
+            std::cout << "Number of steps: " << steps << "\n";
+            
+            // Calculate the number of moves needed for all ants to reach the goal
+            // Each ant must wait for the previous one to move to the next room
+            int total_moves = graph.getNumberOfAnts() + steps - 1;
+            std::cout << "Total moves needed for all " << graph.getNumberOfAnts() 
+                      << " ants to reach " << goal << ": " << total_moves << "\n";
+            
+        } else {
+            std::cout << "\nNo path found from " << start << " to " << goal << "\n";
+        }
+        
+    } catch (const std::exception& e) {
+        std::cerr << "Error processing anthill: " << e.what() << std::endl;
+    }
+}
 
 int main() {
+    // Process all anthills
+    std::cout << "=== Ant Colony Path Finding ===\n";
+    
+    // Process first anthill
+    std::cout << "\n--- First Anthill ---";
+    processAnthill(Anthills::fourmiliere_un);
+    
+    // Process second anthill
+    std::cout << "\n--- Second Anthill ---";
+    processAnthill(Anthills::fourmiliere_deux);
+    
+    // Process third anthill
+    std::cout << "\n--- Third Anthill ---";
+    processAnthill(Anthills::fourmiliere_trois);
+    
+    std::cout << "\n=== All anthills processed ===\n";
+    
+    // Your existing code
     Anthill Small_hill(4, 3); 
     Small_hill.set_room_capacity(0, 3);
     Small_hill.set_room_capacity(1, 1);

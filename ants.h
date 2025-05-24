@@ -11,8 +11,8 @@ class Anthill{
     std::vector<int> room_capacity; 
 
     public:
-        Anthill(int rooms, int capacity){}
-        void add_tunnels( int a, int b){}
-        void set_room_capacity(int room, int capacity) {}
+        Anthill(int rooms, int capacity);
+        void add_tunnels(int a, int b);
+        void set_room_capacity(int room, int capacity);
 
 };

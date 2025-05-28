@@ -1,4 +1,3 @@
-
 #include "ants.h"
 #include <iostream>
 #include <algorithm>
@@ -50,6 +49,7 @@ void Anthill::simulate_bfs() {
     }
 
     std::vector<std::vector<int>> all_paths;
+    all_paths.reserve(1000);
     std::vector<int> path;
     std::function<void(int)> dfs = [&](int current) {
         path.push_back(current);
@@ -66,9 +66,25 @@ void Anthill::simulate_bfs() {
     };
     dfs(start_room);
 
+    // Priorité sur le nombre de noeud, puis la capacité des noeuds
     std::sort(all_paths.begin(), all_paths.end(), [&](const std::vector<int>& a, const std::vector<int>& b) {
-        return a.size() < b.size();
+        int sum_a = 0, sum_b = 0;
+        for (int room : a) sum_a += room_capacity[room];
+        for (int room : b) sum_b += room_capacity[room];
+
+        if (a.size() != b.size()) return a.size() < b.size();
+        return sum_a > sum_b; 
     });
+
+    // L'inverse, priorité sur la capacité, puis sur le nombre de noeuds
+    //std::sort(all_paths.begin(), all_paths.end(), [&](const std::vector<int>& a, const std::vector<int>& b) {
+        //int sum_a = 0, sum_b = 0;
+        //for (int room : a) sum_a += room_capacity[room];
+        //for (int room : b) sum_b += room_capacity[room];
+
+        //if (sum_a != sum_b) return sum_a > sum_b;          
+        //return a.size() < b.size();                        
+    //});
 
     if (all_paths.empty()) {
         std::cout << "Aucun chemin trouvé.\n";
@@ -117,4 +133,4 @@ void Anthill::simulate_bfs() {
     }
 
     std::cout << "\n✅ Simulation terminée en " << steps << " étapes.\n";
-}
+} 

@@ -39,8 +39,17 @@ message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
+# Benchmark executable
+add_executable(MyAntAcademy_benchmark
+    benchmark/benchmark.cpp
+    benchmark/benchmark_impl.cpp
+)
+target_include_directories(MyAntAcademy_benchmark PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/benchmark
+)
+
 # Add install targets
-install(TARGETS MyAntAcademy_bfs MyAntAcademy_astar
+install(TARGETS MyAntAcademy_bfs MyAntAcademy_astar MyAntAcademy_benchmark
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

@@ -29,18 +29,25 @@ struct BenchmarkResult {
 };
 
 void print_results_table(const std::vector<BenchmarkResult>& results) {
-    // Print table header
-    std::cout << std::left << std::setw(20) << "Anthill"
-              << std::setw(15) << "BFS Steps"
-              << std::setw(20) << "BFS Time (ms)"
-              << std::setw(15) << "A* Steps"
-              << std::setw(20) << "A* Time (ms)"
-              << std::setw(15) << "Faster Algo"
-              << std::setw(15) << "Steps Diff"
-              << std::setw(20) << "Time Diff (ms)"
-              << "\n";
+    // Print table header with consistent column widths
+    const int name_width = 30;    // Increased for longer anthill names
+    const int steps_width = 12;
+    const int time_width = 16;
+    const int algo_width = 14;
+    const int diff_width = 14;
     
-    std::cout << std::string(130, '-') << "\n";
+    // Print header
+    std::cout << std::left 
+              << std::setw(name_width) << "ANTHILL"
+              << std::right
+              << std::setw(steps_width) << "BFS STEPS"
+              << std::setw(time_width) << "BFS TIME (ms)"
+              << std::setw(steps_width) << "A* STEPS"
+              << std::setw(time_width) << "A* TIME (ms)"
+              << std::setw(algo_width) << "FASTER"
+              << std::setw(diff_width) << "STEPS DIFF"
+              << std::setw(time_width) << "TIME DIFF (ms)"
+              << "\n" << std::string(120, '=') << "\n";
     
     // Print each row
     for (const auto& result : results) {
@@ -48,18 +55,19 @@ void print_results_table(const std::vector<BenchmarkResult>& results) {
         int steps_diff = result.bfs_steps - result.astar_steps;
         double time_diff = std::abs(result.bfs_time_ms - result.astar_time_ms);
         
-        std::cout << std::left << std::setw(20) << result.anthill_name
-                  << std::setw(15) << result.bfs_steps
-                  << std::setw(20) << std::fixed << std::setprecision(3) << result.bfs_time_ms
-                  << std::setw(15) << result.astar_steps
-                  << std::setw(20) << std::fixed << std::setprecision(3) << result.astar_time_ms
-                  << std::setw(15) << faster_algo
-                  << std::setw(15) << steps_diff
-                  << std::setw(20) << std::fixed << std::setprecision(3) << time_diff
+        std::cout << std::left << std::setw(name_width) << result.anthill_name
+                  << std::right
+                  << std::setw(steps_width) << result.bfs_steps
+                  << std::setw(time_width) << std::fixed << std::setprecision(3) << result.bfs_time_ms
+                  << std::setw(steps_width) << result.astar_steps
+                  << std::setw(time_width) << std::fixed << std::setprecision(3) << result.astar_time_ms
+                  << std::setw(algo_width) << faster_algo
+                  << std::setw(diff_width) << steps_diff
+                  << std::setw(time_width) << std::fixed << std::setprecision(3) << time_diff
                   << "\n";
     }
     
-    // Print summary
+    // Print summary with better formatting
     if (!results.empty()) {
         double total_bfs_time = 0;
         double total_astar_time = 0;
@@ -76,18 +84,44 @@ void print_results_table(const std::vector<BenchmarkResult>& results) {
             }
         }
         
-        std::cout << "\nSummary:\n";
-        std::cout << "BFS was faster in " << bfs_wins << " out of " << results.size() << " cases\n";
-        std::cout << "A* was faster in " << astar_wins << " out of " << results.size() << " cases\n";
-        std::cout << "Total BFS time: " << std::fixed << std::setprecision(3) << total_bfs_time << " ms\n";
-        std::cout << "Total A* time: " << std::fixed << std::setprecision(3) << total_astar_time << " ms\n";
+        // Calculate the maximum width needed for the summary
+        const int label_width = 25;
+        const int value_width = 15;
+        
+        std::cout << "\n" << std::string(50, '=') << "\n";
+        std::cout << "SUMMARY" << "\n";
+        std::cout << std::string(50, '-') << "\n";
+        
+        // Print summary with aligned columns
+        std::cout << std::left << std::setw(label_width) << "BFS was faster in:"
+                  << std::right << std::setw(value_width) 
+                  << bfs_wins << " out of " << results.size() << " cases\n";
+                  
+        std::cout << std::left << std::setw(label_width) << "A* was faster in:"
+                  << std::right << std::setw(value_width)
+                  << astar_wins << " out of " << results.size() << " cases\n\n";
+                  
+        std::cout << std::left << std::setw(label_width) << "Total BFS time:"
+                  << std::right << std::setw(value_width) << std::fixed << std::setprecision(3) 
+                  << total_bfs_time << " ms\n";
+                  
+        std::cout << std::left << std::setw(label_width) << "Total A* time:"
+                  << std::right << std::setw(value_width) << std::fixed << std::setprecision(3) 
+                  << total_astar_time << " ms\n";
         
         if (total_bfs_time < total_astar_time) {
             double percent_faster = ((total_astar_time - total_bfs_time) / total_astar_time) * 100;
-            std::cout << "BFS was " << std::fixed << std::setprecision(1) << percent_faster << "% faster overall\n";
-        } else {
+            std::cout << "\n" << std::left << std::setw(label_width) << "BFS was faster by:"
+                      << std::right << std::setw(value_width) << std::fixed << std::setprecision(1)
+                      << percent_faster << "%\n";
+        } else if (total_astar_time < total_bfs_time) {
             double percent_faster = ((total_bfs_time - total_astar_time) / total_bfs_time) * 100;
-            std::cout << "A* was " << std::fixed << std::setprecision(1) << percent_faster << "% faster overall\n";
+            std::cout << "\n" << std::left << std::setw(label_width) << "A* was faster by:"
+                      << std::right << std::setw(value_width) << std::fixed << std::setprecision(1)
+                      << percent_faster << "%\n";
+        } else {
+            std::cout << "\n" << std::left << std::setw(label_width) << "Both algorithms"
+                      << std::right << std::setw(value_width) << "performed equally\n";
         }
     }
 }

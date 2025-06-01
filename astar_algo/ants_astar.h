@@ -28,12 +28,43 @@ class AnthillAStar {
     std::vector<std::vector<int>> graph;
     std::vector<int> room_capacity;
 
-    // Heuristic function (Euclidean distance as a simple heuristic)
-    int heuristic(int from, int to) {
-        // Simple heuristic: prefer nodes closer to the end
-        // In a grid, this would be the Manhattan or Euclidean distance
-        // Here we'll use absolute difference as a simple heuristic
-        return std::abs(to - from);
+    // Enhanced heuristic function that considers both distance and room capacities
+    int heuristic(int from, int to, const std::vector<int>& path = {}, int current_ants = 0) {
+        // Base case: if we're at the target, no cost
+        if (from == to) return 0;
+        
+        // Calculate base distance (minimum possible steps)
+        int base_distance = std::abs(to - from);
+        
+        // If we have the path so far, consider the capacities of rooms
+        if (!path.empty()) {
+            // Find the minimum capacity in the remaining path
+            int min_capacity = room_capacity[to];  // Start with target room capacity
+            
+            // Consider the capacity of rooms in the current path
+            for (int room : path) {
+                if (room != from) {  // Don't consider current room
+                    min_capacity = std::min(min_capacity, room_capacity[room]);
+                }
+            }
+            
+            // If we have a bottleneck, increase the cost
+            // This makes paths with higher capacity rooms more attractive
+            if (min_capacity < total_ants) {
+                // The more severe the bottleneck, the more we penalize this path
+                float capacity_penalty = static_cast<float>(total_ants) / (min_capacity + 1);
+                base_distance = static_cast<int>(base_distance * capacity_penalty);
+            }
+            
+            // Consider the number of ants that will need to pass through
+            if (current_ants > 0) {
+                // If we have many ants, paths with higher capacity are more important
+                float ant_ratio = static_cast<float>(current_ants) / min_capacity;
+                base_distance = static_cast<int>(base_distance * (1.0f + ant_ratio));
+            }
+        }
+        
+        return base_distance;
     }
 
 public:

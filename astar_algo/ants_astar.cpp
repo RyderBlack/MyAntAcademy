@@ -41,8 +41,14 @@ void AnthillAStar::simulate_astar() {
     std::vector<int> best_path;
     bool path_found = false;
 
-    // Initialize the start node
-    Node start_node{start_room, 0, heuristic(start_room, end_room), {start_room}};
+    // Initialize the start node with the enhanced heuristic
+    std::vector<int> initial_path = {start_room};
+    Node start_node{
+        start_room, 
+        0, 
+        heuristic(start_room, end_room, initial_path, total_ants), 
+        initial_path
+    };
     open_set.push(start_node);
 
     // For tracking visited nodes and their g_scores
@@ -76,11 +82,15 @@ void AnthillAStar::simulate_astar() {
                 
                 g_scores[neighbor] = tentative_g_score;
                 
+                // Calculate the heuristic considering the current path and number of ants
+                std::vector<int> new_path = current.path;
+                new_path.push_back(neighbor);
+                
                 Node neighbor_node{
                     neighbor,
                     tentative_g_score,
-                    tentative_g_score + heuristic(neighbor, end_room),
-                    current.path
+                    tentative_g_score + heuristic(neighbor, end_room, new_path, total_ants),
+                    new_path
                 };
                 neighbor_node.path.push_back(neighbor);
                 

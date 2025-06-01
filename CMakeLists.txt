@@ -34,6 +34,15 @@ target_include_directories(MyAntAcademy_astar PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/astar_algo
 )
 
+# Dijkstra Version
+add_executable(MyAntAcademy_dijkstra
+    dijkstra_algo/main_dijkstra.cpp
+    dijkstra_algo/ants_dijkstra.cpp
+)
+target_include_directories(MyAntAcademy_dijkstra PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/dijkstra_algo
+)
+
 # Print configuration summary
 message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
@@ -49,7 +58,7 @@ target_include_directories(MyAntAcademy_benchmark PRIVATE
 )
 
 # Add install targets
-install(TARGETS MyAntAcademy_bfs MyAntAcademy_astar MyAntAcademy_benchmark
+install(TARGETS MyAntAcademy_bfs MyAntAcademy_astar MyAntAcademy_dijkstra MyAntAcademy_benchmark
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

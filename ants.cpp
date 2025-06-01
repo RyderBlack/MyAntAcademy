@@ -4,6 +4,8 @@
 #include <queue>
 #include <limits>
 #include <functional>
+#include <thread>
+#include <chrono>
 
 Anthill::Anthill(int total_rooms, int total_ants) : total_rooms(total_rooms), total_ants(total_ants) {
     graph.resize(total_rooms);
@@ -86,16 +88,28 @@ void Anthill::simulate_bfs() {
         //return a.size() < b.size();                        
     //});
 
+    // Print simulation header
+    std::cout << "\n" << std::string(60, '=') << "\n";
+    std::cout << "  🐜 ANT SIMULATION - STARTING" << "\n";
+    std::cout << "  Rooms: " << total_rooms << " | Ants: " << total_ants << "\n";
+    std::cout << std::string(60, '=') << "\n\n";
+
     if (all_paths.empty()) {
-        std::cout << "Aucun chemin trouvé.\n";
+        std::cout << "❌ No paths found from start to dormitory!\n";
         return;
     }
 
-    std::cout << "\nChemins trouvés :\n";
+    // Print all found paths with better formatting
+    std::cout << "🔍 Found " << all_paths.size() << " possible path(s) from Start (Room 0) "
+              << "to Dormitory (Room " << end_room << "):\n\n";
     for (size_t i = 0; i < all_paths.size(); ++i) {
-        std::cout << "  Chemin " << i + 1 << " : ";
-        for (int room : all_paths[i]) {
-            std::cout << room << " ";
+        std::cout << "  🛣️  Path #" << i + 1 << " (" << all_paths[i].size() - 1 
+                  << " steps): ";
+        for (size_t j = 0; j < all_paths[i].size(); ++j) {
+            std::cout << all_paths[i][j];
+            if (j < all_paths[i].size() - 1) {
+                std::cout << " → ";
+            }
         }
         std::cout << "\n";
     }
@@ -104,10 +118,18 @@ void Anthill::simulate_bfs() {
     ants_per_room[0] = total_ants;
     int steps = 0;
 
-    while (ants_per_room[end_room] < total_ants) {
-        std::cout << "\nÉtape " << steps << " :\n";
-        std::vector<int> next_ants = ants_per_room;
+    std::cout << "\n" << std::string(60, '=') << "\n";
+    std::cout << "  🚀 SIMULATION STARTING - MOVING ANTS TO DORMITORY" << "\n";
+    std::cout << std::string(60, '=') << "\n\n";
 
+    while (ants_per_room[end_room] < total_ants) {
+        std::cout << "\n⏱️  STEP " << steps << "\n";
+        std::cout << std::string(30, '-') << "\n";
+        
+        std::vector<int> next_ants = ants_per_room;
+        bool movement_occurred = false;
+
+        // For each path, try to move ants along it
         for (const auto& path : all_paths) {
             for (int i = path.size() - 2; i >= 0; --i) {
                 int from = path[i];
@@ -118,19 +140,46 @@ void Anthill::simulate_bfs() {
                 int can_send = std::min(available, capacity_left);
 
                 if (can_send > 0) {
+                    movement_occurred = true;
                     next_ants[from] -= can_send;
                     next_ants[to] += can_send;
-                    std::cout << "  " << can_send << " fourmi(s) de " << from << " à " << to << "\n";
+                    std::cout << "  🐜 " << can_send << " ant(s) moved from Room " 
+                              << from << " to Room " << to << "\n";
                 }
             }
         }
 
+        // Update ant counts
         ants_per_room = next_ants;
+
+        // Print current room status
+        std::cout << "\n  ROOM STATUS (" << ants_per_room[end_room] << "/" << total_ants 
+                  << " ants in dormitory):\n";
         for (int i = 0; i < total_rooms; ++i) {
-            std::cout << "  Salle " << i << " : " << ants_per_room[i] << " fourmi(s)\n";
+            std::string room_type = (i == 0) ? "START" : 
+                                   (i == end_room) ? "DORMITORY" : "ROOM";
+            std::cout << "  • " << room_type << " " << i << ": " 
+                      << ants_per_room[i] << "/" << room_capacity[i] << " ants";
+            if (i == end_room && ants_per_room[i] > 0) {
+                std::cout << " 🏠";
+            }
+            std::cout << "\n";
         }
+
+        if (!movement_occurred && ants_per_room[end_room] < total_ants) {
+            std::cout << "\n⚠️  No movement possible - ants are stuck! Check room capacities.\n";
+            break;
+        }
+
         steps++;
+        
+        // Small delay for better visualization (500ms)
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
-    std::cout << "\n✅ Simulation terminée en " << steps << " étapes.\n";
+    std::cout << "\n" << std::string(60, '=') << "\n";
+    std::cout << "  🎉 SIMULATION COMPLETE! 🎉" << "\n";
+    std::cout << "  All " << total_ants << " ants reached the dormitory" << "\n";
+    std::cout << "  Total steps: " << steps << "\n";
+    std::cout << std::string(60, '=') << "\n\n";
 } 

@@ -1,4 +1,5 @@
 #include "ants_dijkstra.h"
+#include <iomanip>
 
 AnthillDijkstra::AnthillDijkstra(int total_rooms, int total_ants) 
     : total_rooms(total_rooms), total_ants(total_ants) {
@@ -23,7 +24,7 @@ bool AnthillDijkstra::has_tunnel(int a, int b) {
     return std::find(graph[a].begin(), graph[a].end(), b) != graph[a].end();
 }
 
-int AnthillDijkstra::calculate_weight(int from, int to) {
+int AnthillDijkstra::calculate_weight(int from [[maybe_unused]], int to) {
     int base_weight = 1;
     
     // Penalty for low capacity rooms

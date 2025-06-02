@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <filesystem>
 #include <fstream>
+#include <algorithm>
 #include "benchmark.h"
 
 const std::vector<std::string> ANTHILL_NAMES = {

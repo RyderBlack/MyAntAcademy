@@ -44,6 +44,16 @@ namespace {
         }
     };
 
+    struct DijkstraNode {
+        Point pos;
+        int distance;
+        std::vector<Point> path;
+        
+        bool operator>(const DijkstraNode& other) const {
+            return distance > other.distance;
+        }
+    };
+
     bool is_valid_move(const std::vector<std::string>& grid, size_t x, size_t y) {
         if (grid.empty()) return false;
         return x < grid.size() && y < grid[0].size() && grid[x][y] != '#';
@@ -55,12 +65,12 @@ namespace {
     }
 }
 
-// Function to run BFS algorithm on a specific anthill
+// BFS implementation
 int run_bfs(int anthill_num) {
     std::vector<std::string> grid;
     Point start, end;
     
-    // Define anthills programmatically based on the original code
+    // Define anthills
     switch (anthill_num) {
         case 0: // Small Hill (4 rooms)
             grid = {
@@ -176,26 +186,23 @@ int run_bfs(int anthill_num) {
             return -1;
     }
     
-    // BFS setup
+    // BFS
     std::queue<Node> q;
     std::unordered_set<Point, PointHash> visited;
     
     q.push(Node{start, 0, 0, {start}});
     visited.insert(start);
     
-    // Possible moves: right, down, left, up
     const std::vector<Point> moves = {Point(0, 1), Point(1, 0), Point(0, -1), Point(-1, 0)};
     
     while (!q.empty()) {
         Node current = q.front();
         q.pop();
         
-        // Check if we've reached the end
         if (current.pos == end) {
             return current.steps;
         }
         
-        // Explore all possible moves
         for (const auto& move : moves) {
             Point next_pos(current.pos.x + move.x, current.pos.y + move.y);
             
@@ -210,15 +217,15 @@ int run_bfs(int anthill_num) {
         }
     }
     
-    return -1; // No path found
+    return -1;
 }
 
-// Function to run A* algorithm on a specific anthill
+// A* implementation
 int run_astar(int anthill_num) {
     std::vector<std::string> grid;
     Point start, end;
     
-    // Define anthills programmatically (same as in BFS)
+    // Define anthills (same as BFS)
     switch (anthill_num) {
         case 0: // Small Hill (4 rooms)
             grid = {
@@ -334,11 +341,10 @@ int run_astar(int anthill_num) {
             return -1;
     }
     
-    // A* setup
+    // A*
     std::priority_queue<Node, std::vector<Node>, std::greater<>> open_set;
     std::unordered_map<Point, int, PointHash> g_score;
     
-    // Initialize g_score with infinity
     for (size_t i = 0; i < grid.size(); ++i) {
         for (size_t j = 0; j < grid[0].size(); ++j) {
             g_score[Point(i, j)] = INT_MAX;
@@ -348,24 +354,20 @@ int run_astar(int anthill_num) {
     g_score[start] = 0;
     open_set.push(Node{start, 0, manhattan_distance(start, end), {start}});
     
-    // Possible moves: right, down, left, up
     const std::vector<Point> moves = {Point(0, 1), Point(1, 0), Point(0, -1), Point(-1, 0)};
     
     while (!open_set.empty()) {
         Node current = open_set.top();
         open_set.pop();
         
-        // Check if we've reached the end
         if (current.pos == end) {
             return current.steps;
         }
         
-        // If we've found a better path to this node, skip it
         if (current.steps > g_score[current.pos]) {
             continue;
         }
         
-        // Explore all possible moves
         for (const auto& move : moves) {
             Point next_pos(current.pos.x + move.x, current.pos.y + move.y);
             
@@ -383,5 +385,177 @@ int run_astar(int anthill_num) {
         }
     }
     
-    return -1; // No path found
+    return -1;
+}
+
+// Dijkstra implementation
+int run_dijkstra(int anthill_num) {
+    std::vector<std::string> grid;
+    Point start, end;
+    
+    // Define anthills (same as others)
+    switch (anthill_num) {
+        case 0: // Small Hill (4 rooms)
+            grid = {
+                "#######",
+                "#S...#",
+                "#.###.#",
+                "#.#.#.#",
+                "#....##",
+                "#E#.#.#",
+                "#######"
+            };
+            start = Point(1, 1);
+            end = Point(5, 1);
+            break;
+            
+        case 1: // Medium Hill 1 (4 rooms)
+            grid = {
+                "#######",
+                "#S....#",
+                "#.#####",
+                "#.....#",
+                "#####.#",
+                "#E....#",
+                "#######"
+            };
+            start = Point(1, 1);
+            end = Point(5, 1);
+            break;
+            
+        case 2: // Medium Hill 2 (4 rooms, loop)
+            grid = {
+                "#######",
+                "#S....#",
+                "#.###.#",
+                "#.#...#",
+                "#.#####",
+                "#E....#",
+                "#######"
+            };
+            start = Point(1, 1);
+            end = Point(5, 1);
+            break;
+            
+        case 3: // Medium Hill 3 (6 rooms)
+            grid = {
+                "#######",
+                "#S....#",
+                "#.#####",
+                "#.....#",
+                "#.#####",
+                "#E....#",
+                "#######"
+            };
+            start = Point(1, 1);
+            end = Point(5, 1);
+            break;
+            
+        case 4: // Large Hill (8 rooms)
+            grid = {
+                "########",
+                "#S.....#",
+                "#.#####.",
+                "#.....#.",
+                "#.#####.",
+                "#.....#.",
+                "#E#####.",
+                "########"
+            };
+            start = Point(1, 1);
+            end = Point(6, 1);
+            break;
+            
+        case 5: // Extra Large Hill (16 rooms)
+            grid = {
+                "##########",
+                "#S.......#",
+                "#.########",
+                "#........#",
+                "########.#",
+                "#........#",
+                "#.########",
+                "#........#",
+                "##########"
+            };
+            start = Point(1, 1);
+            end = Point(7, 8);
+            break;
+            
+        case 6: // King Hill (23 rooms)
+            grid = {
+                "###########",
+                "#S........#",
+                "#.########.",
+                "#..........",
+                "#.########.",
+                "#..........",
+                "#.########.",
+                "#..........",
+                "#.########.",
+                "#..........",
+                "#.########.",
+                "#..........",
+                "#.########.",
+                "#E........#",
+                "###########"
+            };
+            start = Point(1, 1);
+            end = Point(13, 1);
+            break;
+            
+        default:
+            std::cerr << "Invalid anthill number: " << anthill_num << std::endl;
+            return -1;
+    }
+    
+    // Dijkstra
+    std::priority_queue<DijkstraNode, std::vector<DijkstraNode>, std::greater<>> pq;
+    std::unordered_map<Point, int, PointHash> distances;
+    
+    for (size_t i = 0; i < grid.size(); ++i) {
+        for (size_t j = 0; j < grid[0].size(); ++j) {
+            distances[Point(i, j)] = INT_MAX;
+        }
+    }
+    
+    distances[start] = 0;
+    pq.push({start, 0, {start}});
+    
+    std::unordered_set<Point, PointHash> visited;
+    const std::vector<Point> moves = {Point(0, 1), Point(1, 0), Point(0, -1), Point(-1, 0)};
+    
+    while (!pq.empty()) {
+        DijkstraNode current = pq.top();
+        pq.pop();
+        
+        if (visited.find(current.pos) != visited.end()) {
+            continue;
+        }
+        
+        visited.insert(current.pos);
+        
+        if (current.pos == end) {
+            return current.path.size() - 1;
+        }
+        
+        for (const auto& move : moves) {
+            Point next_pos(current.pos.x + move.x, current.pos.y + move.y);
+            
+            if (is_valid_move(grid, next_pos.x, next_pos.y) && 
+                visited.find(next_pos) == visited.end()) {
+                
+                int new_distance = current.distance + 1;
+                
+                if (new_distance < distances[next_pos]) {
+                    distances[next_pos] = new_distance;
+                    std::vector<Point> new_path = current.path;
+                    new_path.push_back(next_pos);
+                    pq.push({next_pos, new_distance, new_path});
+                }
+            }
+        }
+    }
+    
+    return -1;
 }

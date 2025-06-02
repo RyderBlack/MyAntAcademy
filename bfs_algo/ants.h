@@ -16,7 +16,7 @@ public:
     void set_room_capacity(int room, int capacity);
     bool is_full(int ants, int capacity);
     bool has_tunnel(int a, int b);
-    void simulate_bfs();
+    void simulate_dfs();
 };
 
 #endif

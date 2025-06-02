@@ -30,25 +30,9 @@ bool Anthill::has_tunnel(int a, int b) {
     return std::find(graph[a].begin(), graph[a].end(), b) != graph[a].end();
 }
 
-void Anthill::simulate_bfs() {
-    std::vector<int> distance(total_rooms, -1);
-    std::queue<int> q;
+void Anthill::simulate_dfs() {
     int end_room = total_rooms - 1;
     int start_room = 0;
-    distance[end_room] = 0;
-    q.push(end_room);
-
-    while (!q.empty()) {
-        int current = q.front();
-        q.pop();
-
-        for (int neighbor : graph[current]) {
-            if (distance[neighbor] == -1) {
-                distance[neighbor] = distance[current] + 1;
-                q.push(neighbor);
-            }
-        }
-    }
 
     std::vector<std::vector<int>> all_paths;
     all_paths.reserve(1000);

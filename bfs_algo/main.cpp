@@ -183,7 +183,7 @@ int main() {
     //std::cout << " Simulation de big hill :\n";
     //Big_hill.simulate_bfs();
     std::cout << "Simulation de King hill :\n";
-    King_hill.simulate_bfs();
+    King_hill.simulate_dfs();
 
     return 0;
 }
